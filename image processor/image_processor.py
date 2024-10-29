@@ -41,7 +41,7 @@ class ImageProcessor(QWidget):
             cv2.imshow('Grayscale', gray_image)
             cv2.waitKey(0)
             return gray_matrix
-
+    
 if __name__ == "__main__":
     # Create the application instance
     app = QApplication(sys.argv)
@@ -51,6 +51,8 @@ if __name__ == "__main__":
 
     # Call the method to open and process the image
     gray_matrix = processor.open_file()
+    mean=np.average(gray_matrix)
+    print(mean)
     # Apply the calculator_processor
     if gray_matrix is not None:
         for z in [1, 3, 7, 15, 31, 63, 127, 255]:

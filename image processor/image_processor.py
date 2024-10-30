@@ -1,4 +1,5 @@
 import sys
+import math
 import cv2
 import numpy as np
 from PyQt5.QtWidgets import QApplication, QWidget, QFileDialog
@@ -7,7 +8,7 @@ class ImageProcessor(QWidget):
     def __init__(self):
         super().__init__()
 
-    def calculator_processor(self, x, gray_matrix):
+    def calculator_processor(self, x, gray_matrix): #modified_matrix = np.clip(gray_matrix - x, 0, 255)
         # Create a copy to avoid modifying the original grayscale matrix
         modified_matrix = np.copy(gray_matrix)
 
@@ -20,6 +21,9 @@ class ImageProcessor(QWidget):
                     modified_matrix[i][j] = modified_matrix[i][j] - x
         return modified_matrix
         
+    def meanOP(self, matrix):
+        mean_matrix = np.average(matrix)
+        return mean_matrix
 
     def open_file(self):
         options = QFileDialog.Options()
@@ -35,13 +39,21 @@ class ImageProcessor(QWidget):
 
             # Convert the image to grayscale
             gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            
             gray_matrix = np.array(gray_image)
-
+            print(len(gray_matrix),len(gray_matrix[0]))
             # Show the grayscale image
             cv2.imshow('Grayscale', gray_image)
             cv2.waitKey(0)
             return gray_matrix
     
+    def varianceOP(self, matrix): #math.sqrt(np.var(matrix))
+        mean = self.meanOP(matrix)
+        variance_raw = np.mean((matrix - mean) ** 2)
+        variance = math.sqrt(variance_raw)
+        return variance
+
+
 if __name__ == "__main__":
     # Create the application instance
     app = QApplication(sys.argv)
@@ -51,8 +63,12 @@ if __name__ == "__main__":
 
     # Call the method to open and process the image
     gray_matrix = processor.open_file()
-    mean=np.average(gray_matrix)
-    print(mean)
+    # mean of pixels
+    mean = processor.meanOP(gray_matrix)
+    # variance sqrt of pixels
+    variance = processor.varianceOP(gray_matrix)
+
+    print(f"mean = {mean} \nvariance = {variance}")
     # Apply the calculator_processor
     if gray_matrix is not None:
         for z in [1, 3, 7, 15, 31, 63, 127, 255]:
